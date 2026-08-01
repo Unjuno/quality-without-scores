@@ -1,89 +1,112 @@
 # Quality Without Scores
 
-> Learn improvement without first reducing quality to a single numeric score.
+> Generate supervision for improvement without first assigning every training example a scalar quality score.
 
-Many valuable qualities are difficult to measure directly: visual hierarchy, clarity, modularity, explanatory flow, maintainability, elegance, or biological design quality. Yet it may be much easier to define a transformation that reliably makes a good example worse along one specific axis while preserving its underlying meaning, function, or content.
+Many valuable qualities are difficult to measure directly: visual hierarchy, clarity, modularity, explanatory flow, maintainability, elegance, or biological design quality. Yet it may be easier to define a controlled transformation that makes a relatively good example worse along one specific axis while preserving its underlying meaning, function, or content.
 
-This repository is a public-domain catalog of tasks built around that asymmetry.
+This repository is a public-domain catalog of research and product hypotheses built around that asymmetry.
+
+## What the title means
+
+**Quality Without Scores does not mean evaluation without evidence.**
+
+The method still requires:
+
+- evidence that the proposed degradation usually moves examples in the wrong direction;
+- checks that meaning, function, facts, or other invariants were preserved;
+- evaluation on naturally occurring failures;
+- human or domain-expert judgment when automatic checks are insufficient.
+
+The narrower claim is that manually assigned **scalar training labels** may sometimes be replaced by controlled directional transformations.
 
 ## Core idea
 
 Given a relatively good artifact `y`:
 
-1. Apply a controlled, directional degradation `D` to produce `x = D(y)`.
-2. Preserve the properties that should not change: meaning, function, factual content, physical constraints, or task intent.
-3. Train a model to recover an improved artifact from the degraded one: `G(x) ≈ y`.
+1. Propose a quality axis `k` and a controlled degradation operator `D_k`.
+2. Validate that people or domain evidence usually prefer `y` to `D_k(y)` under a stated intent.
+3. Check that required invariants remain unchanged.
+4. Train a model to propose an improved artifact or edit plan from the degraded example.
+5. Test whether the model transfers to natural failures and unseen degradation families.
 
-The degradation operator supplies supervision when an absolute quality score would be arbitrary, expensive, or impossible to define.
-
-```text
-good example
-    ↓ controlled degradation
-worse example with preserved intent
-    ↓ inverse learning
-improved example
+```mermaid
+flowchart LR
+    A[Relatively good artifact y] -->|validated directional degradation D_k| B[Degraded artifact x]
+    B -->|learned improvement model G| C[Improved artifact or edit plan]
+    A -. not necessarily the only valid target .-> C
+    B --> D[Independent evaluation on natural failures]
+    C --> D
 ```
 
-## Flagship example: visual attention in posters
+The strongest useful case is:
 
-A well-designed poster may guide attention through a deliberate sequence:
+> **degradation is cheap, repair is hard, and verification is independent and affordable.**
 
-```text
-title → main image → key message → call to action
+## Flagship illustration: visual attention in posters
+
+_Illustrative concept only — not a model result._
+
+```mermaid
+flowchart LR
+    A[Title → main image → key message → CTA] -->|flatten hierarchy; create competing focal points; weaken CTA| B[Attention order becomes unclear]
+    B -->|predict ranked layout edits| C[Attention flow better matches the stated communication intent]
 ```
 
-Without changing the text, images, or communicative goal, a generator could degrade that flow by flattening typographic hierarchy, creating competing focal points, separating related elements, weakening contrast, or moving the call to action into a low-attention region.
+The text, images, message, brand constraints, and canvas can remain fixed while typographic hierarchy, contrast, proximity, and placement are degraded. The research question is not whether a model can reverse a known formatting script. It is whether training on varied, validated degradations improves naturally weak posters under human scan-path and task-based evaluation.
 
-The resulting pairs could train a model to restore the intended attention flow. The point is not merely to score a poster as “good” or “bad,” but to learn a concrete improvement direction from controlled degradations.
+## Minimum credible experiment
+
+A result supports the method only when it includes all of the following:
+
+1. **Operator validation** — independent raters or domain evidence confirm the degradation direction.
+2. **Invariant checks** — the degradation and repair preserve required meaning or function.
+3. **Rule baseline** — the model outperforms deterministic reversal or proxy optimization.
+4. **Held-out parameters** — it generalizes beyond seen strengths and locations.
+5. **Held-out operator families** — it handles a degradation implementation not used in training.
+6. **Natural-failure transfer** — it improves real low-quality artifacts not generated by the pipeline.
+7. **No-edit and abstention tests** — it avoids damaging examples that should not be changed.
+8. **Predeclared kill criteria** — the project states what outcome would make the hypothesis unpromising.
+
+Without items 5 and 6, the result is primarily evidence of synthetic operator inversion.
 
 ## What this repository contains
 
-- A precise description of the method and its boundaries
-- A cross-disciplinary catalog of candidate applications
-- A prior-art and adjacent-product scan for every catalog candidate
-- A scorecard for comparing ideas
-- Failure modes and evaluation guidance
-- A contribution format for adding new candidates
+- [`METHOD.md`](METHOD.md) — formal framing, operator validation, and boundaries
+- [`CATALOG.md`](CATALOG.md) — 20 cross-disciplinary candidate applications and falsification criteria
+- [`LANDSCAPE.md`](LANDSCAPE.md) — prior work, adjacent products, and narrower open gaps
+- [`EVIDENCE.md`](EVIDENCE.md) — evidence-type labels and representative-source maturity
+- [`EVALUATION.md`](EVALUATION.md) — evaluation protocol, baselines, and failure-mode checks
+- [`CONTRIBUTING.md`](CONTRIBUTING.md) — how to add an idea or correct the landscape
 
-No implementation is required. The goal is to make useful research and product directions explicit enough that others can test, build, publish, or commercialize them.
+No implementation is required. The goal is to make hypotheses explicit enough that others can reject, test, build, publish, or commercialize them independently.
+
+## Candidate status and confidence
+
+The catalog uses qualitative estimates rather than unexplained precision:
+
+- `High`, `Medium`, `Low`, or `Unknown` for generation, verification, and impact;
+- `Low`, `Medium`, or `High` confidence in those estimates;
+- `literature-scoped`, `domain-review-needed`, or `domain-reviewed` for review status.
+
+These labels are provisional. They are not experimental results or expert consensus.
 
 ## Evidence status
 
 The catalog is not presented as a list of inventions with no precedent. Denoising, synthetic corruption, refactoring, simplification, inverse problems, preference learning, and constrained optimization already cover parts of the space.
 
-[`LANDSCAPE.md`](LANDSCAPE.md) links every candidate to existing research and adjacent tools, then states the narrower unresolved experiment. The repository's strongest defensible claim is not that the broad pattern is entirely new, but that **named, graded, invariant-checked degradation operators may provide scalable supervision for hard-to-score quality directions**.
+[`LANDSCAPE.md`](LANDSCAPE.md) links every candidate to existing research and adjacent tools. [`EVIDENCE.md`](EVIDENCE.md) distinguishes peer-reviewed work, proceedings papers, preprints, official tools, and product pages. The strongest defensible organizing claim is:
 
-## Selection rule
+> **Named, graded, invariant-checked degradation operators may provide scalable supervision for hard-to-score quality directions, provided they transfer to natural failures under independent evaluation.**
 
-A strong candidate usually has the following structure:
+## Important limitations
 
-- Good examples are available.
-- A specific quality axis can be degraded automatically.
-- Important invariants can be preserved.
-- Reversing the degradation requires context or judgment.
-- Outputs can be checked at least partially.
-- The synthetic degradation resembles a real failure mode.
-- Solving the inverse task would be useful.
-
-The ideal case is:
-
-> **degradation is cheap, repair is hard, and verification is cheap.**
-
-## Important limitation
-
-This is not a claim that every form of quality has one correct answer, or that synthetic degradation automatically produces useful models. A model may learn fingerprints of the degradation operator rather than the intended quality concept. Multiple outputs may be valid. The original artifact may not be genuinely high quality. Real-world evaluation remains necessary.
-
-This repository also does not claim that the broad pattern is entirely new. It overlaps with denoising, inverse problems, synthetic corruption, back-translation, preference learning, and mutation-based training. The focus here is narrower:
-
-> **using directional, often meaning-preserving degradation operators as an operational definition of hard-to-score quality.**
-
-## Repository map
-
-- [`METHOD.md`](METHOD.md) — formal framing and boundaries
-- [`CATALOG.md`](CATALOG.md) — cross-disciplinary application ideas
-- [`LANDSCAPE.md`](LANDSCAPE.md) — research, adjacent products, and open gaps for all 20 candidates
-- [`EVALUATION.md`](EVALUATION.md) — scorecard and failure modes
-- [`CONTRIBUTING.md`](CONTRIBUTING.md) — how to add an idea or correct the landscape
+- A proposed degradation may encode the author's taste rather than a stable quality direction.
+- The source artifact may be merely acceptable, not optimal.
+- Several different improved outputs may be valid.
+- A model may memorize operator fingerprints or deterministic reversals.
+- Automatic metrics may be circular if the same heuristic generates and evaluates the data.
+- High-stakes domains require domain review and should not be treated as autonomous deployment proposals.
+- The broad pattern overlaps with established fields; novelty must be argued at the level of a specific experiment.
 
 ## Public-domain dedication
 
