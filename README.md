@@ -40,11 +40,18 @@ The resulting pairs could train a model to restore the intended attention flow. 
 
 - A precise description of the method and its boundaries
 - A cross-disciplinary catalog of candidate applications
+- A prior-art and adjacent-product scan for every catalog candidate
 - A scorecard for comparing ideas
 - Failure modes and evaluation guidance
 - A contribution format for adding new candidates
 
 No implementation is required. The goal is to make useful research and product directions explicit enough that others can test, build, publish, or commercialize them.
+
+## Evidence status
+
+The catalog is not presented as a list of inventions with no precedent. Denoising, synthetic corruption, refactoring, simplification, inverse problems, preference learning, and constrained optimization already cover parts of the space.
+
+[`LANDSCAPE.md`](LANDSCAPE.md) links every candidate to existing research and adjacent tools, then states the narrower unresolved experiment. The repository's strongest defensible claim is not that the broad pattern is entirely new, but that **named, graded, invariant-checked degradation operators may provide scalable supervision for hard-to-score quality directions**.
 
 ## Selection rule
 
@@ -74,8 +81,9 @@ This repository also does not claim that the broad pattern is entirely new. It o
 
 - [`METHOD.md`](METHOD.md) — formal framing and boundaries
 - [`CATALOG.md`](CATALOG.md) — cross-disciplinary application ideas
+- [`LANDSCAPE.md`](LANDSCAPE.md) — research, adjacent products, and open gaps for all 20 candidates
 - [`EVALUATION.md`](EVALUATION.md) — scorecard and failure modes
-- [`CONTRIBUTING.md`](CONTRIBUTING.md) — how to add an idea
+- [`CONTRIBUTING.md`](CONTRIBUTING.md) — how to add an idea or correct the landscape
 
 ## Public-domain dedication
 
